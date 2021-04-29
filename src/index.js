@@ -2,8 +2,8 @@ import { isElement } from '@hai2007/tool/type';
 
 // 核心方法和工具方法
 
-import { initDom, initView, initTableView } from './excel-view/init';
-import { formatContent, calcColName, styleToString } from './excel-view/tool';
+import { initDom, initView, initTableView, itemClickHandler, itemInputHandler } from './excel-view/init';
+import { formatContent, calcColName, styleToString, newItemData, getLeftTop } from './excel-view/tool';
 
 import style from './tool/style';
 
@@ -19,6 +19,9 @@ import renderKeyboard from './Keyboard';
 
 import menu from './menu/index';
 import updateMenu from './menu/update';
+
+import { insertUp, insertDown, insertLeft, insertRight } from './menu/insert';
+import { deleteRow, deleteCol } from './menu/delete';
 
 let owe = function (options) {
 
@@ -75,6 +78,10 @@ owe.prototype.$$formatContent = formatContent;
 owe.prototype.$$calcColName = calcColName;
 owe.prototype.$$addStyle = style();
 owe.prototype.$$styleToString = styleToString;
+owe.prototype.$$newItemData = newItemData;
+owe.prototype.$$itemClickHandler = itemClickHandler;
+owe.prototype.$$itemInputHandler = itemInputHandler;
+owe.prototype.$$getLeftTop = getLeftTop;
 
 // 挂载核心方法
 
@@ -91,6 +98,14 @@ owe.prototype.$$setItemStyle = setItemStyle;
 owe.prototype.$$calcRegionInfo = calcRegionInfo;
 owe.prototype.$$showRegion = showRegion;
 owe.prototype.$$cancelRegion = cancelRegion;
+
+owe.prototype.$$insertUpNewRow = insertUp;
+owe.prototype.$$insertDownNewRow = insertDown;
+owe.prototype.$$insertLeftNewCol = insertLeft;
+owe.prototype.$$insertRightNewCol = insertRight;
+
+owe.prototype.$$deleteCurrentRow = deleteRow;
+owe.prototype.$$deleteCurrentCol = deleteCol;
 
 // 挂载键盘交互总控
 

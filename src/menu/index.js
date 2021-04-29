@@ -1,5 +1,6 @@
 import xhtml from '@hai2007/tool/xhtml';
 import colorTemplate from './color-template';
+import { getTargetNode } from '../tool/polyfill';
 
 export default function () {
 
@@ -11,7 +12,7 @@ export default function () {
        .top-dom{
             width: 100%;
             height: 62px;
-            overflow: auto;
+            overflow: hidden;
        }
 
     `);
@@ -21,6 +22,42 @@ export default function () {
         <span open-web-excel>
             操作
             <div open-web-excel>
+                <span class='item more' open-web-excel>
+                    插入
+                    <div open-web-excel>
+                        <span class='item' open-web-excel>
+                            <span def-type='insert-up'>向上插入</span>
+                            <input value='1' open-web-excel />
+                            <span def-type='insert-up'>行</span>
+                        </span>
+                        <span class='item' open-web-excel>
+                            <span def-type='insert-down'>向下插入</span>
+                            <input value='1' open-web-excel />
+                            <span def-type='insert-down'>行</span>
+                        </span>
+                        <span class='item' open-web-excel>
+                            <span def-type='insert-left'>向左插入</span>
+                            <input value='1' open-web-excel />
+                            <span def-type='insert-left'>列</span>
+                        </span>
+                        <span class='item' open-web-excel>
+                            <span def-type='insert-right'>向右插入</span>
+                            <input value='1' open-web-excel />
+                            <span def-type='insert-right'>列</span>
+                        </span>
+                    </div>
+                </span>
+                <span class='item more' open-web-excel>
+                    删除
+                    <div open-web-excel>
+                        <span class='item' open-web-excel def-type='delete-row'>
+                            删除当前行
+                        </span>
+                        <span class='item' open-web-excel def-type='delete-col'>
+                            删除当前列
+                        </span>
+                    </div>
+                </span>
                 <span class='item more' open-web-excel>
                     合并单元格
                     <div open-web-excel>
@@ -46,6 +83,14 @@ export default function () {
                         <span class='item' def-type='horizontal-right' open-web-excel>右对齐</span>
                     </div>
                 </span>
+                <span class='item more' open-web-excel>
+                    垂直对齐
+                    <div open-web-excel>
+                        <span class='item' def-type='vertical-top' open-web-excel>顶部对齐</span>
+                        <span class='item' def-type='vertical-middle' open-web-excel>居中对齐</span>
+                        <span class='item' def-type='vertical-bottom' open-web-excel>底部对齐</span>
+                    </div>
+                </span>
             </div>
         </span>
         <span open-web-excel>
@@ -64,6 +109,7 @@ export default function () {
             border-bottom: 1px solid #d6cccb;
             padding: 0 20px;
             box-sizing: border-box;
+            white-space: nowrap;
         }
 
         .menu>span{
@@ -109,6 +155,11 @@ export default function () {
             margin:0 10px;
         }
 
+        .menu input{
+            width:20px;
+            outline:none;
+        }
+
         .menu span:hover>div{
             display:block;
         }
@@ -123,6 +174,11 @@ export default function () {
         .menu a{
             text-decoration: none;
             color: #555555;
+        }
+
+        .menu input{
+            width:20px;
+            outline:none;
         }
 
         .menu .item.active::before{
@@ -171,6 +227,16 @@ export default function () {
         <span class='item' def-type='horizontal-right' open-web-excel>
             右对齐
         </span>
+        <span class='line' open-web-excel></span>
+        <span class='item' def-type='vertical-top' open-web-excel>
+            顶部对齐
+        </span>
+        <span class='item' def-type='vertical-middle' open-web-excel>
+            居中对齐
+        </span>
+        <span class='item' def-type='vertical-bottom' open-web-excel>
+            底部对齐
+        </span>
     </div>`);
 
     this.$$addStyle('quick-menu', `
@@ -178,6 +244,9 @@ export default function () {
         .quick-menu{
             line-height: 36px;
             font-size: 12px;
+            white-space: nowrap;
+            width: 100%;
+            overflow: auto;
         }
 
         .quick-menu span{
@@ -227,6 +296,7 @@ export default function () {
             line-height:1em;
             display:none;
             margin-top: -5px;
+            white-space: normal;
         }
 
         .color:hover>.color-view, .color-view:hover{
@@ -258,7 +328,7 @@ export default function () {
 
     xhtml.bind(menuClickItems, 'click', event => {
 
-        let node = event.target;
+        let node = getTargetNode(event);
 
         // 获取按钮类型
         let defType = node.getAttribute('def-type');
@@ -302,6 +372,11 @@ export default function () {
             this.$$setItemStyle('text-align', defType.replace('horizontal-', ''));
         }
 
+        // 垂直对齐方式
+        else if (/^vertical\-/.test(defType)) {
+            this.$$setItemStyle('vertical-align', defType.replace('vertical-', ''));
+        }
+
         // 合并单元格
         else if (/^merge\-/.test(defType)) {
 
@@ -318,7 +393,7 @@ export default function () {
                 for (let i = 1; i < this.__region.nodes.length; i++) {
 
                     this.__contentArray[this.__tableIndex].content[this.__region.nodes[i].getAttribute('row') - 1][this.__region.nodes[i].getAttribute('col') - 1].style.display = 'none';
-                    this.__contentArray[this.__tableIndex].content[this.__region.nodes[i].getAttribute('row') - 1][this.__region.nodes[i].getAttribute('col') - 1].value = '';
+                    this.__contentArray[this.__tableIndex].content[this.__region.nodes[i].getAttribute('row') - 1][this.__region.nodes[i].getAttribute('col') - 1].value = ' ';
                     this.__region.nodes[i].style.display = 'none';
                 }
 
@@ -332,9 +407,7 @@ export default function () {
                 this.__region.nodes[0].setAttribute('colspan', (this.__region.info.col[1] - this.__region.info.col[0] + 1) + "");
                 this.__region.nodes[0].setAttribute('rowspan', (this.__region.info.row[1] - this.__region.info.row[0] + 1) + "");
 
-                this.$$cancelRegion();
-                this.__region = null;
-
+                this.__region.nodes[0].click();
             }
 
             // 取消合并
@@ -370,6 +443,48 @@ export default function () {
 
         }
 
+        // 插入
+        else if (/^insert\-/.test(defType)) {
+
+            let num = +xhtml.find(node.parentNode, () => true, 'input')[0].value;
+
+            // 向上插入行
+            if (defType == 'insert-up') {
+                for (let i = 0; i < num; i++) this.$$insertUpNewRow();
+            }
+
+            // 向下插入行
+            else if (defType == 'insert-down') {
+                for (let i = 0; i < num; i++) this.$$insertDownNewRow();
+            }
+
+            // 向左插入列
+            else if (defType == 'insert-left') {
+                for (let i = 0; i < num; i++) this.$$insertLeftNewCol();
+            }
+
+            // 向右插入列
+            else if (defType == 'insert-right') {
+                for (let i = 0; i < num; i++) this.$$insertRightNewCol();
+            }
+
+        }
+
+        // 删除
+        else if (/^delete\-/.test(defType)) {
+
+            // 删除当前行
+            if (defType == 'delete-row') {
+                this.$$deleteCurrentRow();
+            }
+
+            // 删除当前列
+            else if (defType == 'delete-col') {
+                this.$$deleteCurrentCol();
+            }
+
+        }
+
     });
 
     // 对选择颜色添加点击事件
@@ -380,7 +495,7 @@ export default function () {
         xhtml.bind(colorClickItems, 'click', event => {
 
             let defType = colorItems[i].getAttribute('def-type');
-            let colorValue = event.target.style.background;
+            let colorValue = getTargetNode(event).style.background;
 
             // 设置
             this.$$setItemStyle({
